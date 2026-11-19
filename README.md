@@ -43,10 +43,12 @@ make sure you copy the content of `server/.env.example` to your `server/.env`
 
 env variables must follow the format:
 
-| Variables | Description                                         | Required |
-| --------- | --------------------------------------------------- | -------- |
-| PORT      | Server port; defaults to `4000` if empty or missing | No       |
-| NODE_ENV  | `development`, `test` or `production`               | Yes      |
+| Variables   | Description                                         | Required |
+| ----------- | --------------------------------------------------- | -------- |
+| PORT        | Server port; defaults to `4000` if empty or missing | No       |
+| NODE_ENV    | `development`, `test` or `production`               | Yes      |
+| MONGODB_URI | MongoDB connection URI                              | Yes      |
+| JWT_SECRET  | Secret used to sign and verify JWTs                 | Yes      |
 
 during development is suggested to use `NODE_ENV=development`
 

@@ -15,8 +15,6 @@ export default defineConfig([
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
       parserOptions: {
-        ecmaVersion: 'latest',
-        sourceType: 'module',
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -25,7 +23,7 @@ export default defineConfig([
 
   // Node.js globals for server/**
   {
-    files: ['server/**/*.ts', 'server/**/*.tsx'],
+    files: ['server/**/*.ts'],
     languageOptions: {
       globals: globals.node,
     },

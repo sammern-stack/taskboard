@@ -11,14 +11,20 @@ const envSchema = z.object({
       .default(4000),
   ),
   NODE_ENV: z.enum(['development', 'test', 'production']),
-  MONGODB_URI: z.string(),
-  JWT_SECRET: z.string().max(32),
+  MONGODB_URI: z
+    .string()
+    .regex(
+      /^mongodb(?:\+srv)?:\/\//,
+      'You must provide a valid mongodb connection string',
+    ),
+  JWT_SECRET: z.string().min(32),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
 
 if (!parsedEnv.success) {
-  console.error(`Invalid env variables: ${parsedEnv.error.message}`);
+  const error = z.prettifyError(parsedEnv.error);
+  console.error(`Invalid env variables: ${error}`);
   process.exit(1);
 }
 
