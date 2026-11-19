@@ -3,10 +3,13 @@
     "target": "es2025",
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "rootDir": ".",
+    "rootDir": "src",
     "outDir": "dist",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "strict": true
-  }
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "verbatimModuleSyntax": true
+  },
+  "include": ["src"]
 }
