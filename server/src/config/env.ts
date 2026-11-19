@@ -11,14 +11,15 @@ const envSchema = z.object({
       .default(4000),
   ),
   NODE_ENV: z.enum(['development', 'test', 'production']),
+  MONGODB_URI: z.string(),
+  JWT_SECRET: z.string().max(32),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
 
-if(!parsedEnv.success) {
-  throw new Error(
-    `Invalid env variables: ${parsedEnv.error.message}`
-  )
+if (!parsedEnv.success) {
+  console.error(`Invalid env variables: ${parsedEnv.error.message}`);
+  process.exit(1);
 }
 
-export const env = parsedEnv.data
+export const env = parsedEnv.data;
