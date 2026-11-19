@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 function App() {
   const [data, setData] = useState();
 
   useEffect(() => {
-    fetch("/api/health")
+    fetch('/api/health')
       .then((res) => res.json())
       .then((d) => setData(d));
   }, []);

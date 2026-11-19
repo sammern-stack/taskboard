@@ -1,0 +1,9 @@
+node_modules/
+dist/
+build/
+coverage/
+.next/
+out/
+vendor/
+*.min.js
+*.min.css
