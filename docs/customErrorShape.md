@@ -8,7 +8,8 @@
     "code": "VALIDATION_ERROR", // a machine readable code string
     "details": {
       "field": "email"
-    } // Optional: extra information related to the error for easy debugging
+    }, // Optional: extra information related to the error for easy debugging
+    "stack": {...} // Only in development
   }
 }
 ```
