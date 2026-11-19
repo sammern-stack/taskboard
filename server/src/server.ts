@@ -1,9 +1,10 @@
 import app from './app.js';
-
-const PORT = process.env.PORT || 4000;
+import { env } from './config/env.js';
 
 const startServer = () => {
-  app.listen(PORT, () => console.log(`Server is listening at port ${PORT}`));
+  app.listen(env.PORT, () =>
+    console.log(`Server is listening at port ${env.PORT}`),
+  );
 };
 
 startServer();
