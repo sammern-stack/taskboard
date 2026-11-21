@@ -18,14 +18,14 @@ Example
 
 ```ts
 // provide the actual relative path to shared/errors/customErrors.js
-import { ValidationError } from '../shared/errors/customErrors.js';
+import { ValidationError } from '../shared/errors/customErrors.js'
 
 try {
-  throw new ValidationError('Invalid input', { field: 'email' });
+  throw new ValidationError('Invalid input', { field: 'email' })
 } catch (err) {
   if (err instanceof ValidationError) {
-    console.error(`Validation failed: ${err.message}`);
-    console.error(`Details:`, err.details);
+    console.error(`Validation failed: ${err.message}`)
+    console.error(`Details:`, err.details)
   }
 }
 ```
