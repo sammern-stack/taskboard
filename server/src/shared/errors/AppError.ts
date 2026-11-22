@@ -1,7 +1,7 @@
-class AppError extends Error {
-  public statusCode: number
-  public code: string
-  public details: unknown | undefined
+export class AppError extends Error {
+  public readonly statusCode: number
+  public readonly code: string
+  public readonly details: unknown | undefined
 
   constructor(
     message: string,
@@ -10,13 +10,11 @@ class AppError extends Error {
     details?: unknown
   ) {
     super(message)
+    this.name = new.target.name
     this.statusCode = statusCode
     this.code = code
     this.details = details
 
-    Object.setPrototypeOf(this, new.target.prototype)
     Error.captureStackTrace(this, this.constructor)
   }
 }
-
-export default AppError
