@@ -27,6 +27,33 @@ const getErrorStatus = (error: unknown): number => {
   return 500
 }
 
+const isInvalidJsonError = (error: unknown): boolean => {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'type' in error &&
+    error.type === 'entity.parse.failed'
+  )
+}
+
+const canExposeMessage = (
+  status: number,
+  error: unknown
+): string | undefined => {
+  if (
+    status >= 400 &&
+    status < 500 &&
+    typeof error === 'object' &&
+    error !== null &&
+    'expose' in error &&
+    error.expose === true &&
+    'message' in error &&
+    typeof error.message === 'string'
+  ) {
+    return error.message
+  }
+}
+
 export const errorHandler = (
   error: unknown,
   _req: Request,
@@ -46,12 +73,18 @@ export const errorHandler = (
       details: error.details,
       ...(!isProd && { stack: error.stack })
     }
+  } else if (isInvalidJsonError(error)) {
+    err = {
+      code: 'INVALID_JSON',
+      message: 'The request body contains invalid JSON'
+    }
   } else {
     err = {
-      message: 'Unknown Error',
-      code: 'INTERNAL_SERVER_ERROR',
-      ...(!isProd && { stack: (error as Error).stack })
+      message: canExposeMessage(statusCode, error) ?? 'Unknown Error',
+      code: statusCode < 500 ? 'REQUEST_ERROR' : 'INTERNAL_SERVER_ERROR',
+      ...(!isProd && error instanceof Error && { stack: error.stack })
     }
+
     console.error(error)
   }
 

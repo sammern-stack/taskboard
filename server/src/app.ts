@@ -13,7 +13,7 @@ app.get('/api/health', (_req, res) => {
 })
 
 app.use((req: Request, _res: Response, next: NextFunction) => {
-  if (!req.route) next(new NotFoundError('route not found'))
+  if (!req.route) next(new NotFoundError("the route provided wasn't found"))
 })
 app.use(errorHandler)
 
