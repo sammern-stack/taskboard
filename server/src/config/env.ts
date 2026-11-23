@@ -1,31 +1,15 @@
 import { z } from 'zod'
+import { parseEnv } from '../schemas/envSchema.js'
 
-const envSchema = z.object({
-  PORT: z.preprocess(
-    (value) => (value === '' ? undefined : value),
-    z
-      .string()
-      .regex(/^\d+$/, 'PORT must contain only digits')
-      .transform(Number)
-      .pipe(z.number().int().min(1).max(65535))
-      .default(4000)
-  ),
-  NODE_ENV: z.enum(['development', 'test', 'production']),
-  MONGODB_URI: z
-    .string()
-    .regex(
-      /^mongodb(?:\+srv)?:\/\//,
-      'You must provide a valid mongodb connection string'
-    ),
-  JWT_SECRET: z.string().min(32)
-})
+const loadEnv = () => {
+  try {
+    return parseEnv(process.env)
+  } catch (error) {
+    if (!(error instanceof z.ZodError)) throw error
 
-const parsedEnv = envSchema.safeParse(process.env)
-
-if (!parsedEnv.success) {
-  const error = z.prettifyError(parsedEnv.error)
-  console.error(`Invalid env variables: ${error}`)
-  process.exit(1)
+    console.error(`Invalid env variables: ${z.prettifyError(error)}`)
+    process.exit(1)
+  }
 }
 
-export const env = parsedEnv.data
+export const env = loadEnv()
