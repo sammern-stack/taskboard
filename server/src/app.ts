@@ -1,10 +1,13 @@
 import express from 'express'
+import { pinoHttp } from 'pino-http'
 import { errorHandler } from './shared/middleware/errorHandler.js'
 import { NotFoundError } from './shared/errors/customErrors.js'
+import { pinoHttpOptions } from './config/pinoHttp.config.js'
 import type { Request, Response, NextFunction } from 'express'
 
 const app = express()
 
+app.use(pinoHttp(pinoHttpOptions))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
