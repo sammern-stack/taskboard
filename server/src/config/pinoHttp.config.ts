@@ -2,12 +2,20 @@ import { randomUUID } from 'node:crypto'
 import { logger } from '../lib/logger.js'
 import type { Options } from 'pino-http'
 
+const validateReqId = (id: string) =>
+  /^[A-Za-z0-9_-]{1,64}$/.test(id) ? id : undefined
+
 export const pinoHttpOptions: Options = {
   logger,
-  genReqId(_req, res) {
-    const id = randomUUID()
-    res.setHeader('X-Request-id', id)
-    return id
+  genReqId(req, res) {
+    const reqId = req.headers['x-request-id']
+    const freshId = randomUUID()
+
+    const returnedId =
+      typeof reqId === 'string' && validateReqId(reqId) ? reqId : freshId
+
+    res.setHeader('x-request-id', returnedId)
+    return returnedId
   },
   serializers: {
     req(req) {
