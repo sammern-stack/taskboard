@@ -2,7 +2,7 @@ import { env } from './env.js'
 import type { LoggerOptions } from 'pino'
 
 const isDev = env.NODE_ENV === 'development'
-const developmentOptions: LoggerOptions | false = {
+const developmentOptions: LoggerOptions = {
   transport: {
     target: 'pino-pretty',
     options: {
