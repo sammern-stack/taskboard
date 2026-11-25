@@ -10,6 +10,12 @@ const invalidRequestIds = [
   ['empty string', '']
 ] as const
 
+const validRequestIds = [
+  ['single character', 'b'],
+  ['maximum characters', 'a'.repeat(64)],
+  ['all allowed characters', 'Abc_123-xyz']
+] as const
+
 describe('request ids validations', () => {
   it('request without req header get a x-request-id res header', async () => {
     const res = await request(app).get('/api/health')
@@ -43,14 +49,15 @@ describe('request ids validations', () => {
     }
   )
 
-  it('if unsafe req id was provided, return a fresh id', async () => {
-    const unsafeId =
-      'a-very-very-very-very-long-unsafe-request-header-id-more-than-100-characters-or-is-containing-spaces'
+  it.each(validRequestIds)(
+    'all valid cases for request ids: %s',
+    async (_description, suppliedId) => {
+      const res = await request(app)
+        .get('/api/health')
+        .set('x-request-id', suppliedId)
 
-    const res = await request(app)
-      .get('/api/health')
-      .set('x-request-id', unsafeId)
-
-    expect(res.header['x-request-id']).toSatisfy((val) => val !== unsafeId)
-  })
+      const responseId = res.headers['x-request-id']
+      expect(responseId).toBe(suppliedId)
+    }
+  )
 })
