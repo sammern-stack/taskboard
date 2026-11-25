@@ -2,26 +2,24 @@ import { describe, it, expect } from 'vitest'
 import request from 'supertest'
 import app from '../app.js'
 
+const invalidRequestIds = [
+  ['65 characters', 'a'.repeat(65)],
+  ['contains a space', 'request id'],
+  ['contains <', 'request<id'],
+  ['contains /', 'request/id'],
+  ['empty string', '']
+] as const
+
 describe('request ids validations', () => {
-  it('request without req header get a x-request-header res header', async () => {
+  it('request without req header get a x-request-id res header', async () => {
     const res = await request(app).get('/api/health')
     expect(res.header['x-request-id']).toEqual(expect.any(String))
   })
 
   it('two requests get two different ids', async () => {
-    app.get('/route-1', (_req, res) => {
-      res.status(200).json({ msg: 'route 1 requested' })
-    })
-
-    app.get('/route-2', (_req, res) => {
-      res.status(200).json({ msg: 'route 2 requested' })
-    })
-
-    const firstRouteRes = await request(app).get('/route-1')
-    const secondRouteRes = await request(app).get('/route-2')
-    expect(firstRouteRes.header['x-request-id']).toSatisfy(
-      (val) => val !== secondRouteRes.header['x-request-id']
-    )
+    const first = await request(app).get('/api/health')
+    const second = await request(app).get('/api/health')
+    expect(first.header['x-request-id']).not.toBe(second.header['x-request-id'])
   })
 
   it('a request with a provided header id, receives same header in response', async () => {
@@ -30,6 +28,20 @@ describe('request ids validations', () => {
       .set('x-request-id', 'abc-123')
     expect(res.header['x-request-id']).toBe('abc-123')
   })
+
+  it.each(invalidRequestIds)(
+    'replaces an invalid request ID: %s',
+    async (_description, suppliedId) => {
+      const res = await request(app)
+        .get('/api/health')
+        .set('x-request-id', suppliedId)
+
+      const responseId = res.headers['x-request-id']
+
+      expect(responseId).not.toBe(suppliedId)
+      expect(responseId).toMatch(/^[A-Za-z0-9_-]{1,64}$/)
+    }
+  )
 
   it('if unsafe req id was provided, return a fresh id', async () => {
     const unsafeId =
