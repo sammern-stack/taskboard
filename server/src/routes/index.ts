@@ -2,6 +2,7 @@ import { Router } from 'express'
 
 const router = Router()
 
-router.use('/v1')
+// TODO: placing placeholder handler until boards feature is implemented
+router.use('/v1', () => {})
 
 export default router
