@@ -11,7 +11,8 @@ app.use(pinoHttp(pinoHttpOptions))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-app.get('/api/health', (_req, res) => {
+app.get('/api/health', (req, res) => {
+  req.log.info('Health check requested')
   res.send({ status: 'ok' })
 })
 
