@@ -1,16 +1,17 @@
+import { env } from './env.js'
 import type { LoggerOptions } from 'pino'
 
-const isDevelopment = process.env.NODE_ENV === 'development'
+const isDev = env.NODE_ENV === 'development'
+const developmentOptions: LoggerOptions | false = {
+  transport: {
+    target: 'pino-pretty',
+    options: {
+      colorize: true
+    }
+  }
+}
 
 export const loggerOptions: LoggerOptions = {
-  level: isDevelopment ? 'debug' : 'info',
-
-  ...(isDevelopment && {
-    transport: {
-      target: 'pino-pretty',
-      options: {
-        colorize: true
-      }
-    }
-  })
+  level: env.LOG_LEVEL,
+  ...(isDev ? developmentOptions : {})
 }
