@@ -1,5 +1,15 @@
 import { z } from 'zod'
 
+const LOG_LEVELS = [
+  'fatal',
+  'error',
+  'warn',
+  'info',
+  'debug',
+  'trace',
+  'silent'
+] as const
+
 export const envSchema = z.object({
   PORT: z.preprocess(
     (value) => (value === '' ? undefined : value),
@@ -17,7 +27,11 @@ export const envSchema = z.object({
       /^mongodb(?:\+srv)?:\/\//,
       'You must provide a valid mongodb connection string'
     ),
-  JWT_SECRET: z.string().min(32)
+  JWT_SECRET: z.string().min(32),
+  LOG_LEVEL: z.preprocess(
+    (value) => (value === '' ? undefined : value),
+    z.enum(LOG_LEVELS).default('info')
+  )
 })
 
 export type ParsedEnv = z.output<typeof envSchema>

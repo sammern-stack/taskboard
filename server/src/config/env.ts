@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { parseEnv } from '../schemas/envSchema.js'
+import { logger } from '../lib/logger.js'
 
 const loadEnv = () => {
   try {
@@ -7,7 +8,10 @@ const loadEnv = () => {
   } catch (error) {
     if (!(error instanceof z.ZodError)) throw error
 
-    console.error(`Invalid env variables: ${z.prettifyError(error)}`)
+    logger.error(
+      { zodError: z.treeifyError(error) },
+      `Invalid env variables: ${z.prettifyError(error)}`
+    )
     process.exit(1)
   }
 }

@@ -1,6 +1,7 @@
 import { AppError } from '../errors/AppError.js'
 import { env } from '../../config/env.js'
 import type { NextFunction, Request, Response } from 'express'
+import { logger } from '../../lib/logger.js'
 
 type ErrorBody = {
   message?: string
@@ -84,8 +85,12 @@ export const errorHandler = (
       code: statusCode < 500 ? 'REQUEST_ERROR' : 'INTERNAL_SERVER_ERROR',
       ...(!isProd && error instanceof Error && { stack: error.stack })
     }
+  }
 
-    console.error(error)
+  if (statusCode >= 400 && statusCode <= 499) {
+    logger.warn({ statusCode }, 'Unhandled bad request error')
+  } else if (statusCode >= 500 && statusCode <= 599) {
+    logger.error({ statusCode }, 'Unhandled internal server error')
   }
 
   res.status(statusCode).json({ error: err })

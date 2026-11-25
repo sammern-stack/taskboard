@@ -8,7 +8,8 @@ describe('ensure env variables are valid', () => {
       NODE_ENV: 'test',
       PORT: '4000',
       MONGODB_URI: 'mongodb://127.0.0.1:27017/taskboard_test',
-      JWT_SECRET: 'test-secret-at-least-32-characters-long'
+      JWT_SECRET: 'test-secret-at-least-32-characters-long',
+      LOG_LEVEL: 'silent'
     }
 
     expect(parseEnv(input)).toEqual({ ...input, PORT: 4000 })
@@ -19,7 +20,8 @@ describe('ensure env variables are valid', () => {
     const input = {
       NODE_ENV: 'test',
       PORT: '4000',
-      MONGODB_URI: 'mongodb://127.0.0.1:27017/taskboard_test'
+      MONGODB_URI: 'mongodb://127.0.0.1:27017/taskboard_test',
+      LOG_LEVEL: 'silent'
     }
 
     expect(() => parseEnv(input)).toThrow()
@@ -29,7 +31,8 @@ describe('ensure env variables are valid', () => {
     const input = {
       NODE_ENV: 'test',
       MONGODB_URI: 'mongodb://127.0.0.1:27017/taskboard_test',
-      JWT_SECRET: 'test-secret-at-least-32-characters-long'
+      JWT_SECRET: 'test-secret-at-least-32-characters-long',
+      LOG_LEVEL: 'silent'
     }
 
     expect(parseEnv(input)).toEqual({ ...input, PORT: 4000 })
@@ -40,7 +43,8 @@ describe('ensure env variables are valid', () => {
       NODE_ENV: 'test',
       PORT: '',
       MONGODB_URI: 'mongodb://127.0.0.1:27017/taskboard_test',
-      JWT_SECRET: 'test-secret-at-least-32-characters-long'
+      JWT_SECRET: 'test-secret-at-least-32-characters-long',
+      LOG_LEVEL: 'silent'
     }
 
     expect(parseEnv(input)).toEqual({ ...input, PORT: 4000 })
@@ -51,7 +55,8 @@ describe('ensure env variables are valid', () => {
       NODE_ENV: 'test',
       PORT: '70000',
       MONGODB_URI: 'mongodb://127.0.0.1:27017/taskboard_test',
-      JWT_SECRET: 'test-secret-at-least-32-characters-long'
+      JWT_SECRET: 'test-secret-at-least-32-characters-long',
+      LOG_LEVEL: 'silent'
     }
 
     expect(() => parseEnv(input)).toThrow()
@@ -62,7 +67,51 @@ describe('ensure env variables are valid', () => {
       NODE_ENV: 'test',
       PORT: '4000',
       MONGODB_URI: 'mongo://127.0.0.1:27017/taskboard_test',
+      JWT_SECRET: 'test-secret-at-least-32-characters-long',
+      LOG_LEVEL: 'silent'
+    }
+
+    expect(() => parseEnv(input)).toThrow()
+  })
+
+  it('missing LOG_LEVEL uses default', () => {
+    const input = {
+      NODE_ENV: 'test',
+      PORT: '4000',
+      MONGODB_URI: 'mongodb://127.0.0.1:27017/taskboard_test',
       JWT_SECRET: 'test-secret-at-least-32-characters-long'
+    }
+
+    expect(parseEnv(input)).toEqual({
+      ...input,
+      PORT: 4000,
+      LOG_LEVEL: 'info'
+    })
+  })
+
+  it('empty LOG_LEVEL uses default', () => {
+    const input = {
+      NODE_ENV: 'test',
+      PORT: '4000',
+      MONGODB_URI: 'mongodb://127.0.0.1:27017/taskboard_test',
+      JWT_SECRET: 'test-secret-at-least-32-characters-long',
+      LOG_LEVEL: ''
+    }
+
+    expect(parseEnv(input)).toEqual({
+      ...input,
+      PORT: 4000,
+      LOG_LEVEL: 'info'
+    })
+  })
+
+  it('invalid LOG_LEVEL should throw', () => {
+    const input = {
+      NODE_ENV: 'test',
+      PORT: '4000',
+      MONGODB_URI: 'mongodb://127.0.0.1:27017/taskboard_test',
+      JWT_SECRET: 'test-secret-at-least-32-characters-long',
+      LOG_LEVEL: 'invalid-log-level'
     }
 
     expect(() => parseEnv(input)).toThrow()
