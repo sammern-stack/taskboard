@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { logger } from '../lib/logger.js'
-import type { Options } from 'pino-http'
+import type { Options, StdSerializedResults } from 'pino-http'
+import { AppError } from '../shared/errors/AppError.js'
 
 const validateReqId = (id: string) => /^[A-Za-z0-9_-]{1,64}$/.test(id)
 
@@ -28,11 +29,21 @@ export const pinoHttpOptions: Options = {
         statusCode: res.statusCode
       }
     },
-    err(err) {
-      return {
-        type: err.type
-      }
-    }
+    err: serializeHttpError
   },
   redact: []
+}
+
+export function serializeHttpError(err: StdSerializedResults['err']) {
+  const appError = err.raw instanceof AppError ? err.raw : undefined
+
+  return {
+    type: err.type,
+    message: err.message,
+    stack: err.stack,
+    ...(appError && {
+      code: appError.code,
+      ...(appError.details !== undefined && { details: appError.details })
+    })
+  }
 }
