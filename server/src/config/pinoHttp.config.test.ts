@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import request from 'supertest'
 import app from '../app.js'
+import { AppError } from '../shared/errors/AppError.js'
+import { serializeHttpError } from './pinoHttp.config.js'
+import { stdSerializers } from 'pino'
 
 const invalidRequestIds = [
   ['65 characters', 'a'.repeat(65)],
@@ -60,4 +63,34 @@ describe('request ids validations', () => {
       expect(responseId).toBe(suppliedId)
     }
   )
+})
+
+describe('error serializer', () => {
+  it('serialize an AppError', () => {
+    const error = new AppError('error-message', 500, 'INTERNAL_SERVER_ERROR', {
+      id: '1'
+    })
+
+    const result = serializeHttpError(stdSerializers.err(error))
+
+    expect(result).toEqual({
+      type: 'AppError',
+      message: 'error-message',
+      code: 'INTERNAL_SERVER_ERROR',
+      stack: expect.any(String),
+      details: { id: '1' }
+    })
+  })
+
+  it('serializes a plain Error without AppError fields', () => {
+    const result = serializeHttpError(
+      stdSerializers.err(new Error('Something failed'))
+    )
+
+    expect(result).toEqual({
+      type: 'Error',
+      message: 'Something failed',
+      stack: expect.any(String)
+    })
+  })
 })
