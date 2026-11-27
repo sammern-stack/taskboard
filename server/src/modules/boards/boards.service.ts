@@ -8,7 +8,7 @@ export function createBoardService(repository: BoardRepository) {
     listBoards: () => repository.findAll(),
     getBoard: async (boardId: string) => {
       const board = await repository.findById(boardId)
-      if (!board) throw new NotFoundError('board not found', { boardId })
+      if (!board) throw new NotFoundError('Board not found', { boardId })
       return board
     }
   }

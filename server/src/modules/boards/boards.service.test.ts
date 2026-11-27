@@ -1,16 +1,15 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { createBoardService } from './boards.service.js'
+import { createBoardService, type BoardService } from './boards.service.js'
 import { createFakeBoardRepository } from './boards.repository.fake.js'
 import { randomBytes } from 'node:crypto'
 import { NotFoundError } from '../../shared/errors/customErrors.js'
 import type { Board } from './boards.types.js'
 
 describe('board services', () => {
-  let repository: ReturnType<typeof createFakeBoardRepository>
-  let service: ReturnType<typeof createBoardService>
+  let service: BoardService
 
   beforeEach(() => {
-    repository = createFakeBoardRepository()
+    const repository = createFakeBoardRepository()
     service = createBoardService(repository)
   })
 
@@ -54,8 +53,11 @@ describe('board services', () => {
   it('getBoard should throw from an invalid id', async () => {
     const randomId = randomBytes(12).toString('hex')
     await service.createBoard({ name: 'Homework' })
-    await expect(service.getBoard(randomId)).rejects.toBeInstanceOf(
-      NotFoundError
-    )
+    const result = service.getBoard(randomId)
+    await expect(result).rejects.toBeInstanceOf(NotFoundError)
+    await expect(result).rejects.toMatchObject({
+      statusCode: 404,
+      details: { boardId: randomId }
+    })
   })
 })
