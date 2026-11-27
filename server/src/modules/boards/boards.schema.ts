@@ -19,3 +19,4 @@ export const boardIdParamSchema = z.strictObject({
 
 export type CreateBoardInput = z.infer<typeof createBoardSchema>
 export type UpdateBoardInput = z.infer<typeof updateBoardSchema>
+export type BoardIdParam = z.infer<typeof boardIdParamSchema>
