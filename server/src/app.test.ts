@@ -12,6 +12,14 @@ describe('GET /api/health', () => {
   })
 })
 
+describe('GET /api/v1/boards', () => {
+  it('status of 200 and a empty array under res.body.data', async () => {
+    const res = await request(app).get('/api/v1/boards')
+    expect(res.status).toBe(200)
+    expect(res.body.data).toEqual([])
+  })
+})
+
 describe('GET /unknown-route', () => {
   it('return 404 with correct error shape', async () => {
     const res = await request(app).get('/api/unknown-route')

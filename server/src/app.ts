@@ -13,7 +13,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // Routes
-app.use('/api', v1Routes)
+app.use('/api/v1', v1Routes)
 
 app.get('/api/health', (req, res) => {
   req.log.info('Health check requested')

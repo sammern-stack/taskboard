@@ -1,5 +1,21 @@
 # API conventions
 
+## Successful responses
+
+Successful board responses use the envelope `{ "data": ... }`, where `data` is a board or a list of boards. A successful deletion returns `204 No Content` with an empty body instead.
+
+## Board endpoints
+
+| Method | Endpoint             | Success        |
+| ------ | -------------------- | -------------- |
+| POST   | `/api/v1/boards`     | 201 Created    |
+| GET    | `/api/v1/boards`     | 200 OK         |
+| GET    | `/api/v1/boards/:id` | 200 OK         |
+| PATCH  | `/api/v1/boards/:id` | 200 OK         |
+| DELETE | `/api/v1/boards/:id` | 204 No Content |
+
+Invalid input returns 400 Bad Request; a valid ID for a missing board returns 404 Not Found.
+
 ## Error responses
 
 Errors use a JSON envelope with an `error` property:
