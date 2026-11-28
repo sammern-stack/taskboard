@@ -13,12 +13,12 @@ export function createBoardRouter(service: BoardService) {
   const controller = createBoardController(service)
 
   router
-    .route('/boards')
+    .route('/')
     .post(validate(createBoardSchema), controller.create)
     .get(controller.list)
 
   router
-    .route('/boards/:id')
+    .route('/:id')
     .get(validate(boardIdParamSchema, 'params'), controller.getOne)
     .patch(
       validate(boardIdParamSchema, 'params'),
