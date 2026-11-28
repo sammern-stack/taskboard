@@ -22,6 +22,13 @@ describe('board routes', () => {
     app.use(errorHandler)
   })
 
+  const createBoard = async (
+    body = {
+      name: 'Homework',
+      description: 'Complete them before the semester ends'
+    }
+  ) => (await request(app).post(BASE_URL).send(body)).body.data
+
   describe(`POST ${BASE_URL}`, () => {
     it('valid body returns 201 and the created body and Date as ISO', async () => {
       const res = await request(app).post(BASE_URL).send({ name: 'Homework' })
@@ -122,28 +129,22 @@ describe('board routes', () => {
 
   describe(`PATCH ${BASE_URL}/:id`, () => {
     it('after updating only name res contains new name, old description', async () => {
-      const board = await request(app).post(BASE_URL).send({
-        name: 'Homework',
-        description: 'Complete them before the semester ends'
-      })
+      const board = await createBoard()
 
       const res = await request(app)
-        .patch(`${BASE_URL}/${board.body.data.id}`)
+        .patch(`${BASE_URL}/${board.id}`)
         .send({ name: 'Project' })
 
       expect(res.status).toBe(200)
       expect(res.body.data.name).toBe('Project')
-      expect(res.body.data.description).toBe(board.body.data.description)
+      expect(res.body.data.description).toBe(board.description)
     })
 
     it('after calling PATCH next GET shows updated board', async () => {
-      const board = await request(app).post(BASE_URL).send({
-        name: 'Homework',
-        description: 'Complete them before the semester ends'
-      })
+      const board = await createBoard()
 
       const res = await request(app)
-        .patch(`${BASE_URL}/${board.body.data.id}`)
+        .patch(`${BASE_URL}/${board.id}`)
         .send({ name: 'Project' })
 
       const boards = await request(app).get(BASE_URL)
@@ -154,27 +155,19 @@ describe('board routes', () => {
 
     describe('returns 400 when', () => {
       it('sends empty body: {}', async () => {
-        const board = await request(app).post(BASE_URL).send({
-          name: 'Homework',
-          description: 'Complete them before the semester ends'
-        })
+        const board = await createBoard()
 
-        const res = await request(app)
-          .patch(`${BASE_URL}/${board.body.data.id}`)
-          .send({})
+        const res = await request(app).patch(`${BASE_URL}/${board.id}`).send({})
 
         expect(res.status).toBe(400)
         expect(res.body.error.code).toBe('VALIDATION_ERROR')
       })
 
       it('sends empty name value', async () => {
-        const board = await request(app).post(BASE_URL).send({
-          name: 'Homework',
-          description: 'Complete them before the semester ends'
-        })
+        const board = await createBoard()
 
         const res = await request(app)
-          .patch(`${BASE_URL}/${board.body.data.id}`)
+          .patch(`${BASE_URL}/${board.id}`)
           .send({ name: '' })
 
         expect(res.status).toBe(400)
@@ -182,24 +175,18 @@ describe('board routes', () => {
       })
 
       it('sends unknown field', async () => {
-        const board = await request(app).post(BASE_URL).send({
-          name: 'Homework',
-          description: 'Complete them before the semester ends'
-        })
+        const board = await createBoard()
 
         const res = await request(app)
-          .patch(`${BASE_URL}/${board.body.data.id}`)
-          .send({ name: '', unknownField: '' })
+          .patch(`${BASE_URL}/${board.id}`)
+          .send({ name: 'Homework', unknownField: 'something' })
 
         expect(res.status).toBe(400)
         expect(res.body.error.code).toBe('VALIDATION_ERROR')
       })
 
       it("malformed id that doesn't exists, even with valid body", async () => {
-        await request(app).post(BASE_URL).send({
-          name: 'Homework',
-          description: 'Complete them before the semester ends'
-        })
+        await createBoard()
 
         const res = await request(app)
           .patch(`${BASE_URL}/unknown-id`)
@@ -212,10 +199,7 @@ describe('board routes', () => {
 
     it("well-formed id that doesn't exist return 404 not found", async () => {
       const randomValidId = randomBytes(12).toString('hex')
-      await request(app).post(BASE_URL).send({
-        name: 'Homework',
-        description: 'Complete them before the semester ends'
-      })
+      await createBoard()
 
       const res = await request(app)
         .patch(`${BASE_URL}/${randomValidId}`)
@@ -228,27 +212,20 @@ describe('board routes', () => {
 
   describe(`DELETE ${BASE_URL}/:id`, () => {
     it('existing boards sends back 204 with empty body', async () => {
-      const board = await request(app).post(BASE_URL).send({
-        name: 'Homework',
-        description: 'Complete them before the semester ends'
-      })
-      const res = await request(app).delete(`${BASE_URL}/${board.body.data.id}`)
+      const board = await createBoard()
+      const res = await request(app).delete(`${BASE_URL}/${board.id}`)
 
       expect(res.status).toBe(204)
       expect(res.text).toBe('')
     })
 
-    it('after delete GET /:d return 404 and GET / no longer list it', async () => {
-      const board = await request(app).post(BASE_URL).send({
-        name: 'Homework',
-        description: 'Complete them before the semester ends'
-      })
-      const boardId = board.body.data.id
+    it('after delete GET /:id return 404 and GET / no longer list it', async () => {
+      const board = await createBoard()
 
-      const deleted = await request(app).delete(`${BASE_URL}/${boardId}`)
+      const deleted = await request(app).delete(`${BASE_URL}/${board.id}`)
       expect(deleted.status).toBe(204)
 
-      const getBoard = await request(app).get(`${BASE_URL}/${boardId}`)
+      const getBoard = await request(app).get(`${BASE_URL}/${board.id}`)
       expect(getBoard.status).toBe(404)
 
       const boards = await request(app).get(BASE_URL)
@@ -256,26 +233,28 @@ describe('board routes', () => {
     })
 
     it('malformed id returns 400', async () => {
-      await request(app).post(BASE_URL).send({
-        name: 'Homework',
-        description: 'Complete them before the semester ends'
-      })
+      await createBoard()
       const deleted = await request(app).delete(`${BASE_URL}/unknown-id`)
 
       expect(deleted.status).toBe(400)
     })
 
-    it('deleting twice first returns 204 then 400', async () => {
-      const board = await request(app).post(BASE_URL).send({
-        name: 'Homework',
-        description: 'Complete them before the semester ends'
-      })
-      const boardId = board.body.data.id
+    it("well-formed id but doesn't exists return a 404 not found error", async () => {
+      const randomValidId = randomBytes(12).toString('hex')
+      await createBoard()
+      const deleted = await request(app).delete(`${BASE_URL}/${randomValidId}`)
 
-      const first = await request(app).delete(`${BASE_URL}/${boardId}`)
+      expect(deleted.status).toBe(404)
+      expect(deleted.body.error.code).toBe('NOT_FOUND_ERROR')
+    })
+
+    it('deleting twice first returns 204 then 404', async () => {
+      const board = await createBoard()
+
+      const first = await request(app).delete(`${BASE_URL}/${board.id}`)
       expect(first.status).toBe(204)
 
-      const second = await request(app).delete(`${BASE_URL}/${boardId}`)
+      const second = await request(app).delete(`${BASE_URL}/${board.id}`)
       expect(second.status).toBe(404)
     })
   })
